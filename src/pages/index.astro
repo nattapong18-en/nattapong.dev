@@ -2,181 +2,223 @@
 import Layout from '../layouts/Layout.astro';
 import Icon from '../components/Icon.astro';
 import PostItem from '../components/PostItem.astro';
-import ProjectVisual from '../components/ProjectVisual.astro';
 import SectionHeading from '../components/SectionHeading.astro';
-import { site, services, projects } from '../data/site';
+import { site, domains, services, projects } from '../data/site';
 import { getPosts } from '../lib/posts';
 
 const posts = await getPosts();
-const featured = projects.filter((p) => p.featured);
-const others = projects.filter((p) => !p.featured);
+const label = Object.fromEntries(domains.map((d) => [d.key, d.label]));
+const countOf = (k: string) => projects.filter((p) => p.domains.includes(k as any)).length;
+const pad = (n: number) => String(n).padStart(2, '0');
 ---
 
 <Layout>
   <!-- Hero -->
-  <section class="hero-bg border-b border-line">
-    <div class="mx-auto grid max-w-5xl items-center gap-12 px-4 pt-16 pb-20 sm:px-6 md:grid-cols-[1.15fr_1fr] md:pt-24 md:pb-28">
-      <div>
-        <p class="inline-flex items-center gap-2 rounded-full border border-line bg-card/70 px-3 py-1 text-xs font-medium text-muted backdrop-blur">
-          <span class="pulse h-2 w-2 rounded-full bg-accent"></span>{site.status}
-        </p>
-        <h1 class="mt-6 text-4xl leading-[1.15] font-bold tracking-tight sm:text-6xl">
-          สวัสดีครับ<br />ผม <span class="text-gradient">{site.name}</span>
-        </h1>
-        <p class="mt-5 max-w-md text-lg leading-relaxed text-muted">{site.tagline}</p>
-        <div class="mt-8 flex flex-wrap gap-3">
-          <a href="#contact" class="inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-semibold text-on-accent shadow-lg shadow-accent/20 transition hover:-translate-y-0.5">
-            จ้างงาน / ติดต่อ <Icon name="arrow" class="h-4 w-4" />
-          </a>
-          <a href="#projects" class="inline-flex items-center gap-2 rounded-full border border-line bg-card px-6 py-3 text-sm font-semibold transition hover:-translate-y-0.5">
-            ดูผลงาน
-          </a>
-        </div>
-      </div>
-
-      <!-- terminal -->
-      <div class="relative">
-        <div class="absolute -inset-4 -z-10 rounded-3xl bg-gradient-to-br from-accent/25 to-accent-2/20 blur-2xl"></div>
-        <div class="overflow-hidden rounded-2xl border border-white/10 bg-[var(--term-bg)] font-mono text-[13px] leading-relaxed text-[var(--term-fg)] shadow-2xl">
-          <div class="flex items-center gap-1.5 border-b border-white/10 px-4 py-3">
-            <span class="h-3 w-3 rounded-full bg-[#ff5f57]"></span>
-            <span class="h-3 w-3 rounded-full bg-[#febc2e]"></span>
-            <span class="h-3 w-3 rounded-full bg-[#28c840]"></span>
-            <span class="ml-3 text-xs opacity-50">~/nattapong — zsh</span>
-          </div>
-          <div class="space-y-1 p-5">
-            <p><span class="text-[#2dd4bf]">❯</span> whoami</p>
-            <p class="opacity-80">Nattapong · Computer Engineering ปี 4</p>
-            <p class="pt-2"><span class="text-[#2dd4bf]">❯</span> ls ./stack</p>
-            <p class="flex flex-wrap gap-x-3 text-[#fbbf24]">
-              {site.skills.slice(0, 6).map((s) => <span>{s}</span>)}
-            </p>
-            <p class="pt-2"><span class="text-[#2dd4bf]">❯</span> cat now.txt</p>
-            <p class="opacity-80">สร้าง IoT + web · เริ่มทำ open source</p>
-            <p class="pt-2"><span class="text-[#2dd4bf]">❯</span> <span class="cursor"></span></p>
-          </div>
-        </div>
+  <section class="mx-auto grid min-h-[calc(100svh-56px)] max-w-6xl content-center gap-14 px-4 py-16 sm:px-8 lg:grid-cols-[1.4fr_1fr] lg:gap-10">
+    <div>
+      <p class="fade font-mono text-xs tracking-[0.2em] text-muted uppercase">{site.role}</p>
+      <h1 class="mt-6 text-[clamp(3rem,10vw,7rem)] leading-[1.05] whitespace-nowrap font-semibold tracking-tight">
+        {site.headline.map((line, i) => (
+          <span class="rise"><span style={`--d:${150 + i * 120}ms`} class:list={[i === 1 && 'text-accent']}>{line}</span></span>
+        ))}
+      </h1>
+      <p class="fade mt-8 max-w-xl text-lg leading-relaxed text-muted sm:text-xl" style="--d:500ms">{site.intro}</p>
+      <div class="fade mt-10 flex flex-wrap items-center gap-6" style="--d:650ms">
+        <a href="#contact" class="inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-semibold text-on-accent transition hover:-translate-y-0.5">
+          ติดต่อ / จ้างงาน <Icon name="arrow" class="h-4 w-4" />
+        </a>
+        <p class="flex items-center gap-2.5 text-sm text-muted"><span class="led"></span>{site.status}</p>
       </div>
     </div>
 
-    <!-- stats -->
-    <div class="border-t border-line bg-card/40">
-      <dl class="mx-auto grid max-w-5xl grid-cols-3 divide-x divide-line px-4 sm:px-6">
-        {site.stats.map((s) => (
-          <div class="flex flex-col-reverse px-2 py-6 text-center sm:px-6">
-            <dt class="mt-1 text-xs text-muted sm:text-sm">{s.label}</dt>
-            <dd class="text-xl font-bold tracking-tight sm:text-3xl">{s.value}</dd>
-          </div>
+    <!-- stack: ชิปขึ้นไปถึงหน้าจอ -->
+    <div class="fade self-end lg:self-center" style="--d:800ms">
+      <p class="mb-4 font-mono text-[11px] tracking-[0.2em] text-muted uppercase">stack ที่ทำได้ ↑</p>
+      <ol class="flex flex-col-reverse">
+        {domains.map((d, i) => (
+          <li>
+            <a href="#projects" data-set-filter={d.key} class="group flex items-center gap-4 border-t border-line py-4 transition-colors hover:border-accent/60">
+              <span class="font-mono text-xs text-muted">L{i}</span>
+              <span class="led led-off transition group-hover:bg-accent group-hover:shadow-[0_0_6px_1px_rgb(245_165_36/0.7),0_0_18px_4px_rgb(245_165_36/0.25)]"></span>
+              <span class="flex-1">
+                <span class="block text-lg font-medium transition group-hover:text-accent">{d.label}</span>
+                <span class="block text-xs text-muted">{d.layer}</span>
+              </span>
+              <span class="font-mono text-xs text-muted">{pad(countOf(d.key))}</span>
+            </a>
+          </li>
         ))}
-      </dl>
+      </ol>
     </div>
   </section>
 
-  <div class="mx-auto max-w-5xl px-4 sm:px-6">
-    <!-- Services -->
-    <section id="work" class="scroll-mt-20 py-24">
-      <SectionHeading index="01" eyebrow="services" title="รับงาน" subtitle="งานขนาดเล็กถึงกลาง คุยรายละเอียดและประเมินราคาให้ฟรี" />
-      <div class="mt-12 grid gap-4 sm:grid-cols-2">
-        {services.map((s) => (
-          <div class="reveal group rounded-2xl border border-line bg-card p-6 transition hover:-translate-y-1 hover:border-accent/50 hover:shadow-xl hover:shadow-accent/5">
-            <div class="grid h-11 w-11 place-items-center rounded-xl bg-accent/10 text-accent transition group-hover:bg-accent group-hover:text-on-accent">
-              <Icon name={s.icon} />
-            </div>
-            <h3 class="mt-5 text-lg font-semibold">{s.title}</h3>
-            <p class="mt-2 text-sm leading-relaxed text-muted">{s.desc}</p>
+  <div class="mx-auto max-w-6xl px-4 sm:px-8">
+    <!-- Capabilities -->
+    <section id="work" class="scroll-mt-16 py-24 sm:py-32">
+      <SectionHeading index="01" eyebrow="capabilities" title="สิ่งที่ผมทำ" />
+      <div class="grid sm:grid-cols-2">
+        {domains.map((d, i) => (
+          <div class:list={['reveal border-b border-line py-10 sm:pr-10', i % 2 && 'sm:border-l sm:pl-10 sm:pr-0']}>
+            <p class="font-mono text-xs text-accent">L{i}</p>
+            <h3 class="mt-3 text-2xl font-semibold tracking-tight sm:text-3xl">{d.label}</h3>
+            <p class="mt-4 leading-relaxed text-muted">{d.desc}</p>
+            <p class="mt-6 font-mono text-xs leading-6 text-fg/70">{d.tools.join('  ·  ')}</p>
+            <p class="mt-5 text-sm text-muted">
+              ผลงาน: {projects.filter((p) => p.domains.includes(d.key)).slice(0, 3).map((p, j) => (
+                <>{j > 0 && ', '}<a href={p.href} target="_blank" rel="noopener" class="text-fg underline decoration-line underline-offset-4 hover:decoration-accent">{p.name}</a></>
+              ))}
+            </p>
           </div>
         ))}
       </div>
     </section>
 
     <!-- Projects -->
-    <section id="projects" class="scroll-mt-20 border-t border-line py-24">
-      <SectionHeading index="02" eyebrow="selected work" title="ผลงาน" subtitle="โปรเจกต์ที่ทำระหว่างเรียน ตั้งแต่ hardware ไปจนถึง backend และหน้าเว็บ" />
+    <section id="projects" class="scroll-mt-16 py-24 sm:py-32">
+      <SectionHeading index="02" eyebrow="selected work" title="ผลงาน" />
 
-      <div class="mt-12 space-y-6">
-        {featured.map((p, i) => (
-          <article class="reveal group grid overflow-hidden rounded-3xl border border-line bg-card transition hover:border-accent/50 md:grid-cols-2">
-            <div class:list={['aspect-[16/10] overflow-hidden border-line max-md:border-b md:aspect-auto md:min-h-72', i % 2 ? 'md:order-2 md:border-l' : 'md:border-r']}>
-              <ProjectVisual project={p} />
-            </div>
-            <div class="flex flex-col p-6 sm:p-8">
-              <p class="font-mono text-xs text-muted">0{i + 1}</p>
-              <h3 class="mt-2 text-2xl font-semibold tracking-tight">{p.name}</h3>
-              <p class="mt-3 flex-1 leading-relaxed text-muted">{p.desc}</p>
-              <ul class="mt-5 flex flex-wrap gap-2">
-                {p.tags.map((t) => <li class="rounded-full bg-bg-2 px-3 py-1 font-mono text-xs text-muted">{t}</li>)}
-              </ul>
-              <div class="mt-6 flex flex-wrap gap-3 text-sm font-semibold">
-                {p.demo && (
-                  <a href={p.demo} target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 rounded-full bg-fg px-4 py-2 text-bg hover:opacity-90">
-                    Live demo <Icon name="arrow" class="h-3.5 w-3.5" />
-                  </a>
-                )}
-                <a href={p.href} target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 rounded-full border border-line px-4 py-2 hover:bg-bg-2">
-                  <Icon name="github" class="h-4 w-4" /> Code
-                </a>
-              </div>
-            </div>
-          </article>
+      <div class="mt-8 flex flex-wrap gap-2" role="group" aria-label="กรองตามสายงาน">
+        <button type="button" data-filter="all" aria-pressed="true" class="filter-btn">ทั้งหมด <span>{pad(projects.length)}</span></button>
+        {domains.map((d) => (
+          <button type="button" data-filter={d.key} aria-pressed="false" class="filter-btn">{d.label} <span>{pad(countOf(d.key))}</span></button>
         ))}
       </div>
 
-      <div class="mt-6 grid gap-4 sm:grid-cols-2">
-        {others.map((p) => (
-          <a href={p.href} target="_blank" rel="noopener" class="reveal group flex flex-col rounded-2xl border border-line bg-card p-6 transition hover:-translate-y-1 hover:border-accent/50">
-            <div class="flex items-start justify-between gap-4">
-              <h3 class="font-semibold group-hover:text-accent">{p.name}</h3>
-              <Icon name="arrow" class="h-4 w-4 shrink-0 text-muted transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-accent" />
-            </div>
-            <p class="mt-2 flex-1 text-sm leading-relaxed text-muted">{p.desc}</p>
-            <ul class="mt-4 flex flex-wrap gap-x-3 gap-y-1">
-              {p.tags.map((t) => <li class="font-mono text-xs text-muted">#{t}</li>)}
-            </ul>
-          </a>
+      <ul class="mt-8 border-t border-line" id="project-list">
+        {projects.map((p, i) => (
+          <li data-domains={p.domains.join(' ')} class="project-row border-b border-line">
+            <a href={p.demo ?? p.href} target="_blank" rel="noopener" data-image={p.image}
+              class="group grid grid-cols-[2.5rem_1fr_auto] items-start gap-x-4 py-7 sm:grid-cols-[3rem_1fr_14rem_auto] sm:gap-x-8">
+              <span class="pt-2 font-mono text-xs text-muted">{pad(i + 1)}</span>
+              <span>
+                <span class="block text-2xl font-semibold tracking-tight transition-all duration-300 group-hover:translate-x-2 group-hover:text-accent sm:text-4xl">{p.name}</span>
+                <span class="mt-2 block max-w-xl text-sm leading-relaxed text-muted">{p.desc}</span>
+                <span class="mt-3 block font-mono text-[11px] text-muted/80 sm:hidden">{p.domains.map((d) => label[d]).join(' · ')}</span>
+              </span>
+              <span class="hidden pt-3 font-mono text-[11px] leading-5 text-muted uppercase sm:block">
+                {p.domains.map((d) => <span class="block">{label[d]}</span>)}
+              </span>
+              <span class="flex items-center justify-end gap-2 pt-2.5 font-mono text-[11px] text-muted uppercase sm:w-14">
+                {p.demo && <span class="hidden text-accent sm:inline">live</span>}
+                <Icon name="arrow" class="h-4 w-4 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-accent" />
+              </span>
+            </a>
+          </li>
         ))}
-      </div>
+      </ul>
 
-      <a href="https://github.com/nattapong18-en?tab=repositories" target="_blank" rel="noopener" class="mt-8 inline-flex items-center gap-2 text-sm font-medium text-muted hover:text-fg">
-        <Icon name="github" class="h-4 w-4" /> ดูทั้งหมดบน GitHub →
+      <a href="https://github.com/nattapong18-en?tab=repositories" target="_blank" rel="noopener" class="mt-8 inline-flex items-center gap-2 font-mono text-xs tracking-wider text-muted uppercase hover:text-fg">
+        <Icon name="github" class="h-4 w-4" /> ดูทั้งหมด 40+ repos บน GitHub →
       </a>
     </section>
 
+    <!-- Services -->
+    <section class="py-24 sm:py-32">
+      <SectionHeading index="03" eyebrow="freelance" title="รับงาน" />
+      <p class="reveal mt-8 max-w-xl text-muted">รับงานขนาดเล็กถึงกลาง ทั้งงาน hardware และ software คุยรายละเอียดและประเมินราคาให้ฟรี</p>
+      <ol class="mt-6">
+        {services.map((s, i) => (
+          <li class="reveal grid gap-2 border-b border-line py-7 sm:grid-cols-[3rem_1fr_1.2fr] sm:gap-8">
+            <span class="font-mono text-xs text-accent sm:pt-2">{pad(i + 1)}</span>
+            <h3 class="text-xl font-semibold sm:text-2xl">{s.title}</h3>
+            <p class="leading-relaxed text-muted sm:pt-1">{s.desc}</p>
+          </li>
+        ))}
+      </ol>
+    </section>
+
     {posts.length > 0 && (
-      <section class="border-t border-line py-24">
-        <div class="flex items-end justify-between gap-4">
-          <SectionHeading index="03" eyebrow="writing" title="Blog" />
-          <a href="/blog" class="shrink-0 text-sm font-medium text-muted hover:text-fg">ทั้งหมด →</a>
-        </div>
-        <ul class="mt-10 divide-y divide-line border-y border-line">
+      <section class="py-24 sm:py-32">
+        <SectionHeading index="04" eyebrow="writing" title="Blog" />
+        <ul class="mt-4 divide-y divide-line border-b border-line">
           {posts.slice(0, 3).map((post) => <PostItem post={post} />)}
         </ul>
+        <a href="/blog" class="mt-8 inline-block font-mono text-xs tracking-wider text-muted uppercase hover:text-fg">บทความทั้งหมด →</a>
       </section>
     )}
 
     <!-- Contact -->
-    <section id="contact" class="scroll-mt-20 pb-24">
-      <div class="reveal relative overflow-hidden rounded-3xl bg-[var(--term-bg)] px-6 py-14 text-center text-[var(--term-fg)] sm:px-12 sm:py-20">
-        <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(500px_260px_at_20%_0%,rgb(45_212_191/0.25),transparent_70%),radial-gradient(420px_240px_at_90%_100%,rgb(251_191_36/0.18),transparent_70%)]"></div>
-        <div class="relative">
-          <p class="font-mono text-xs tracking-wider text-[#2dd4bf] uppercase">04 — contact</p>
-          <h2 class="mt-4 text-3xl font-semibold tracking-tight sm:text-5xl">มีไอเดียอยากให้ช่วยทำ?</h2>
-          <p class="mx-auto mt-4 max-w-md opacity-70">ไม่ว่าจะเป็นเว็บร้าน ระบบเล็กๆ หรืออยากชวนทำ open source ด้วยกัน ทักมาคุยได้เลยครับ</p>
-          <div class="mt-8 flex flex-wrap justify-center gap-3">
-            {site.email && (
-              <a href={`mailto:${site.email}`} class="inline-flex items-center gap-2 rounded-full bg-[#2dd4bf] px-6 py-3 text-sm font-semibold text-[#06201d] hover:opacity-90">
-                <Icon name="mail" class="h-4 w-4" /> {site.email}
-              </a>
-            )}
-            {site.links.map((l, i) => (
-              <a href={l.href} target="_blank" rel="noopener"
-                class:list={['inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition hover:-translate-y-0.5',
-                  !site.email && i === 0 ? 'bg-[#2dd4bf] text-[#06201d]' : 'border border-white/15 hover:bg-white/5']}>
-                {l.label === 'GitHub' && <Icon name="github" class="h-4 w-4" />}{l.label}
-              </a>
-            ))}
-          </div>
-        </div>
+    <section id="contact" class="scroll-mt-16 py-24 sm:py-40">
+      <p class="reveal font-mono text-xs tracking-[0.2em] text-muted uppercase">contact</p>
+      <h2 class="reveal mt-6 text-[clamp(2.6rem,8vw,6.5rem)] leading-[1.05] font-semibold tracking-tight">
+        มีอะไรอยากสร้าง<br /><span class="text-accent">คุยกันได้ครับ</span>
+      </h2>
+      <p class="reveal mt-8 max-w-lg text-lg text-muted">ไม่ว่าจะเป็นอุปกรณ์ IoT ระบบหลังบ้าน เว็บ หรืออยากชวนทำ open source ด้วยกัน</p>
+      <div class="reveal mt-10 flex flex-wrap gap-3">
+        {site.email && (
+          <a href={`mailto:${site.email}`} class="inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-semibold text-on-accent hover:-translate-y-0.5">
+            <Icon name="mail" class="h-4 w-4" /> {site.email}
+          </a>
+        )}
+        {site.links.map((l, i) => (
+          <a href={l.href} target="_blank" rel="noopener"
+            class:list={['inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition hover:-translate-y-0.5',
+              !site.email && i === 0 ? 'bg-accent text-on-accent' : 'border border-line hover:border-fg/40']}>
+            {l.label === 'GitHub' && <Icon name="github" class="h-4 w-4" />}{l.label}
+          </a>
+        ))}
       </div>
     </section>
   </div>
+
+  <div id="preview" aria-hidden="true"><img alt="" /></div>
 </Layout>
+
+<style>
+  .filter-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid var(--color-line);
+    border-radius: 9999px;
+    padding: 0.4rem 0.9rem;
+    font-size: 0.8rem;
+    color: var(--color-muted);
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+  .filter-btn span { font-family: var(--font-mono); font-size: 0.7rem; opacity: 0.7; }
+  .filter-btn:hover { color: var(--color-fg); border-color: rgb(236 235 230 / 0.35); }
+  .filter-btn[aria-pressed='true'] { background: var(--color-fg); border-color: var(--color-fg); color: var(--color-bg); }
+  .project-row[hidden] { display: none; }
+</style>
+
+<script>
+  // กรองผลงานตามสายงาน
+  const buttons = document.querySelectorAll<HTMLButtonElement>('.filter-btn');
+  const rows = document.querySelectorAll<HTMLLIElement>('.project-row');
+  const setFilter = (key: string) => {
+    buttons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.filter === key)));
+    rows.forEach((r) => (r.hidden = key !== 'all' && !r.dataset.domains!.split(' ').includes(key)));
+  };
+  buttons.forEach((b) => b.addEventListener('click', () => setFilter(b.dataset.filter!)));
+  document.querySelectorAll<HTMLAnchorElement>('[data-set-filter]').forEach((a) =>
+    a.addEventListener('click', () => setFilter(a.dataset.setFilter!)),
+  );
+
+  // ภาพตัวอย่างลอยตามเมาส์ (เฉพาะอุปกรณ์ที่มีเมาส์)
+  if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    const preview = document.getElementById('preview')!;
+    const img = preview.querySelector('img')!;
+    let x = 0, y = 0, cx = 0, cy = 0, raf = 0;
+    const loop = () => {
+      cx += (x - cx) * 0.15;
+      cy += (y - cy) * 0.15;
+      preview.style.left = `${cx}px`;
+      preview.style.top = `${cy}px`;
+      raf = requestAnimationFrame(loop);
+    };
+    document.querySelectorAll<HTMLAnchorElement>('a[data-image]').forEach((a) => {
+      a.addEventListener('mouseenter', (e) => {
+        img.src = a.dataset.image!;
+        cx = x = e.clientX + 200;
+        cy = y = e.clientY;
+        preview.classList.add('show');
+        cancelAnimationFrame(raf);
+        loop();
+      });
+      a.addEventListener('mousemove', (e) => { x = e.clientX + 200; y = e.clientY; });
+      a.addEventListener('mouseleave', () => { preview.classList.remove('show'); cancelAnimationFrame(raf); });
+    });
+  }
+</script>

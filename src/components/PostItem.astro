@@ -6,11 +6,11 @@ const { post } = Astro.props as { post: CollectionEntry<'blog'> };
 ---
 
 <li>
-  <a href={`/blog/${post.id}`} class="group block rounded-xl px-3 py-5 transition hover:bg-card sm:px-4">
-    <time class="font-mono text-xs text-muted">{formatDate(post.data.date)}</time>
-    <h3 class="mt-1 text-lg font-semibold group-hover:text-accent">
+  <a href={`/blog/${post.id}`} class="group grid gap-1 py-6 sm:grid-cols-[10rem_1fr] sm:gap-8">
+    <time class="pt-1.5 font-mono text-xs text-muted">{formatDate(post.data.date)}</time>
+    <div><h3 class="text-xl font-semibold transition group-hover:text-accent">
       {post.data.title}{post.data.draft && <span class="ml-2 text-xs text-muted">(draft)</span>}
     </h3>
-    <p class="mt-1 text-sm text-muted">{post.data.description}</p>
+    <p class="mt-1 text-sm text-muted">{post.data.description}</p></div>
   </a>
 </li>
