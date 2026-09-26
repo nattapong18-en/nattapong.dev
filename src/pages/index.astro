@@ -1,6 +1,10 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import PostItem from '../components/PostItem.astro';
 import { site, services, projects } from '../data/site';
+import { getPosts } from '../lib/posts';
+
+const posts = await getPosts();
 ---
 
 <Layout>
@@ -26,7 +30,7 @@ import { site, services, projects } from '../data/site';
   <section id="work" class="scroll-mt-8 border-t border-line py-14">
     <h2 class="text-2xl font-semibold">รับงาน</h2>
     <p class="mt-2 text-muted">งานขนาดเล็กถึงกลาง คุยรายละเอียดและประเมินราคาให้ฟรี</p>
-    <div class="mt-8 grid gap-4 sm:grid-cols-3">
+    <div class="mt-8 grid gap-4 sm:grid-cols-2">
       {services.map((s) => (
         <div class="rounded-xl bg-card p-5 ring-1 ring-line">
           <h3 class="font-semibold">{s.title}</h3>
@@ -40,20 +44,44 @@ import { site, services, projects } from '../data/site';
     <h2 class="text-2xl font-semibold">Projects</h2>
     <div class="mt-8 grid gap-4 sm:grid-cols-2">
       {projects.map((p) => (
-        <a href={p.href} target="_blank" rel="noopener" class="group rounded-xl bg-card p-5 ring-1 ring-line hover:ring-accent">
-          <h3 class="font-mono font-medium group-hover:text-accent">{p.name}</h3>
-          <p class="mt-2 text-sm text-muted">{p.desc}</p>
-          <ul class="mt-4 flex flex-wrap gap-2">
+        <div class="flex flex-col rounded-xl bg-card p-5 ring-1 ring-line">
+          <h3 class="font-semibold">{p.name}</h3>
+          <p class="mt-2 flex-1 text-sm text-muted">{p.desc}</p>
+          <ul class="mt-4 flex flex-wrap gap-x-3 gap-y-1">
             {p.tags.map((t) => <li class="font-mono text-xs text-muted">#{t}</li>)}
           </ul>
-        </a>
+          <div class="mt-4 flex gap-4 text-sm font-medium">
+            <a href={p.href} target="_blank" rel="noopener" class="text-accent hover:underline">Code →</a>
+            {p.demo && <a href={p.demo} target="_blank" rel="noopener" class="text-accent hover:underline">Live demo →</a>}
+          </div>
+        </div>
       ))}
     </div>
+    <a href="https://github.com/nattapong18-en?tab=repositories" target="_blank" rel="noopener" class="mt-6 inline-block text-sm text-muted hover:text-fg">ดูทั้งหมดบน GitHub →</a>
   </section>
+
+  {posts.length > 0 && (
+    <section class="border-t border-line py-14">
+      <div class="flex items-baseline justify-between">
+        <h2 class="text-2xl font-semibold">Blog</h2>
+        <a href="/blog" class="text-sm text-muted hover:text-fg">ทั้งหมด →</a>
+      </div>
+      <ul class="mt-6 divide-y divide-line">
+        {posts.slice(0, 3).map((post) => <PostItem post={post} />)}
+      </ul>
+    </section>
+  )}
 
   <section id="contact" class="scroll-mt-8 border-t border-line py-14">
     <h2 class="text-2xl font-semibold">ติดต่อ</h2>
     <p class="mt-2 text-muted">มีงานอยากให้ช่วย หรืออยากชวนทำโปรเจกต์ ทักมาได้เลยครับ</p>
-    <a href={`mailto:${site.email}`} class="mt-6 inline-block font-mono text-lg text-accent underline-offset-4 hover:underline">{site.email}</a>
+    <div class="mt-6 flex flex-wrap gap-3">
+      {site.email && (
+        <a href={`mailto:${site.email}`} class="rounded-lg bg-fg px-5 py-2.5 text-sm font-medium text-bg hover:opacity-90">{site.email}</a>
+      )}
+      {site.links.map((l) => (
+        <a href={l.href} target="_blank" rel="noopener" class="rounded-lg border border-line px-5 py-2.5 text-sm font-medium hover:bg-card">{l.label}</a>
+      ))}
+    </div>
   </section>
 </Layout>

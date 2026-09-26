@@ -1,0 +1,17 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import PostItem from '../../components/PostItem.astro';
+import { getPosts } from '../../lib/posts';
+
+const posts = await getPosts();
+---
+
+<Layout title="Blog — nattapong.dev" description="บันทึกการเรียนรู้ โปรเจกต์ และ open source">
+  <section class="py-12">
+    <h1 class="text-3xl font-bold tracking-tight">Blog</h1>
+    <p class="mt-2 text-muted">บันทึกการเรียนรู้ โปรเจกต์ และเส้นทางทำ open source</p>
+    <ul class="mt-8 divide-y divide-line">
+      {posts.map((post) => <PostItem post={post} />)}
+    </ul>
+  </section>
+</Layout>
