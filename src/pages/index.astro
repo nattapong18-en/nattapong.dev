@@ -1,17 +1,59 @@
 ---
-
+import Layout from '../layouts/Layout.astro';
+import { site, services, projects } from '../data/site';
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Layout>
+  <section class="py-12 sm:py-20">
+    <p class="mb-4 inline-flex items-center gap-2 rounded-full border border-line px-3 py-1 text-xs text-muted">
+      <span class="h-2 w-2 rounded-full bg-accent"></span>{site.status}
+    </p>
+    <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">สวัสดีครับ ผม {site.name}</h1>
+    <p class="mt-4 max-w-xl text-lg text-muted">{site.tagline}</p>
+    <div class="mt-8 flex flex-wrap gap-3">
+      <a href="#contact" class="rounded-lg bg-fg px-5 py-2.5 text-sm font-medium text-bg hover:opacity-90">จ้างงาน / ติดต่อ</a>
+      {site.links.map((l) => (
+        <a href={l.href} target="_blank" rel="noopener" class="rounded-lg border border-line px-5 py-2.5 text-sm font-medium hover:bg-card">{l.label}</a>
+      ))}
+    </div>
+    <ul class="mt-10 flex flex-wrap gap-2">
+      {site.skills.map((s) => (
+        <li class="rounded-md bg-card px-2.5 py-1 font-mono text-xs text-muted ring-1 ring-line">{s}</li>
+      ))}
+    </ul>
+  </section>
+
+  <section id="work" class="scroll-mt-8 border-t border-line py-14">
+    <h2 class="text-2xl font-semibold">รับงาน</h2>
+    <p class="mt-2 text-muted">งานขนาดเล็กถึงกลาง คุยรายละเอียดและประเมินราคาให้ฟรี</p>
+    <div class="mt-8 grid gap-4 sm:grid-cols-3">
+      {services.map((s) => (
+        <div class="rounded-xl bg-card p-5 ring-1 ring-line">
+          <h3 class="font-semibold">{s.title}</h3>
+          <p class="mt-2 text-sm text-muted">{s.desc}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section id="projects" class="scroll-mt-8 border-t border-line py-14">
+    <h2 class="text-2xl font-semibold">Projects</h2>
+    <div class="mt-8 grid gap-4 sm:grid-cols-2">
+      {projects.map((p) => (
+        <a href={p.href} target="_blank" rel="noopener" class="group rounded-xl bg-card p-5 ring-1 ring-line hover:ring-accent">
+          <h3 class="font-mono font-medium group-hover:text-accent">{p.name}</h3>
+          <p class="mt-2 text-sm text-muted">{p.desc}</p>
+          <ul class="mt-4 flex flex-wrap gap-2">
+            {p.tags.map((t) => <li class="font-mono text-xs text-muted">#{t}</li>)}
+          </ul>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section id="contact" class="scroll-mt-8 border-t border-line py-14">
+    <h2 class="text-2xl font-semibold">ติดต่อ</h2>
+    <p class="mt-2 text-muted">มีงานอยากให้ช่วย หรืออยากชวนทำโปรเจกต์ ทักมาได้เลยครับ</p>
+    <a href={`mailto:${site.email}`} class="mt-6 inline-block font-mono text-lg text-accent underline-offset-4 hover:underline">{site.email}</a>
+  </section>
+</Layout>
